@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5353:5353"
+    volumes:
+      - ./app:/usr/src/skin_disease_classifier/app:ro
+      - logs:/log
+    restart: unless-stopped
+
+volumes:
+  logs:
+    name: skin_diseases_logs

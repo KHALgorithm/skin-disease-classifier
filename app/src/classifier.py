@@ -12,7 +12,7 @@ from app.src.preprocessing import (
 logger = logger(__name__)
 
 # Define class labels
-CLASS_LABELS = ["1. Enfeksiyonel", "5. Benign", "6. Malign"]
+CLASS_LABELS = ["Enfeksiyonel", "Benign", "Malign"]
 
 
 class Classifier:
@@ -24,7 +24,7 @@ class Classifier:
     # Lock for the model in thread to ensure thread safety
     _model_lock = threading.Lock()
 
-    def __init__(self, model_path="model/bestmodel_93.keras"):
+    def __init__(self, model_path="model/bestmodel_98.keras"):
         """
         Initializes the Classifier and loads the model in a thread-safe manner.
 
@@ -86,7 +86,6 @@ class Classifier:
             predictions = self.model.predict(image)
             logger.debug(f"Raw Predictions: {predictions}")
             confidence = np.max(predictions, axis=1)[0]  # Get max probability
-            print(f"predictions: {predictions}")
             prediction_index = predictions.argmax(axis=1)[0]
 
             return CLASS_LABELS[prediction_index], confidence
@@ -111,32 +110,42 @@ class Classifier:
         return model_info
 
 
-if __name__ == "__main__":
-    from tensorflow.keras.preprocessing import image_dataset_from_directory
-    import numpy as np
+# # for test
+# # python -m app.src.classifier
+# if __name__ == "__main__":
+#     from tensorflow.keras.preprocessing import image_dataset_from_directory
+#     import numpy as np
+#     import os
+#     from PIL import Image
 
-    try:
-        # Update image path to be relative to script location
-        img_path = "/root/freelance/skin_diseases_classification/test/6. Malign/ISIC_0056124.jpg"
-        processed_image = preprocess_image(img_path)
+#     try:
+#         # Use os.path.join for cross-platform compatibility
+#         base_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+#         img_path = os.path.join(
+#             base_dir, "test", "1. Enfeksiyonel", "03ContactDerm040127.jpg"
+#         )
 
-        # Initialize the classifier
-        classifier = Classifier()  # Using the default model path
-        test_dir = "test"
-        test_data = image_dataset_from_directory(
-            test_dir,
-            label_mode="categorical",
-            image_size=(400, 400),
-            batch_size=64,
-            shuffle=True,
-            seed=42,
-        )
-        loss, acc = classifier.model.evaluate(test_data)
+#         # Check if image exists
+#         if not os.path.exists(img_path):
+#             raise FileNotFoundError(f"Image not found at {img_path}")
 
-        print(f"\nAccuracy = {acc}\nLoss = {loss}")
-        # # Make prediction
-        # label, index = classifier.predict(processed_image)
-        # print(f"Predicted disease: {label} (class {index})")
+#         processed_image = preprocess_image(img_path)
 
-    except Exception as e:
-        print(f"Error: {str(e)}")
+#         # Save preprocessed image for verification
+#         debug_dir = os.path.join(base_dir, "debug")
+#         os.makedirs(debug_dir, exist_ok=True)
+
+#         # Convert preprocessed image back to PIL format and save
+#         debug_image = Image.fromarray((processed_image[0] * 255).astype("uint8"))
+#         debug_path = os.path.join(debug_dir, "preprocessed_image.png")
+#         debug_image.save(debug_path)
+#         print(f"Saved preprocessed image to: {debug_path}")
+
+#         # Initialize the classifier and make prediction
+#         classifier = Classifier()
+#         label, confidence = classifier.predict(processed_image)
+#         print(f"Predicted disease: {label}")
+#         print(f"Confidence: {confidence:.2%}")
+
+#     except Exception as e:
+#         print(f"Error: {str(e)}")

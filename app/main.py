@@ -1,6 +1,6 @@
 import warnings
 
-from api.routes import router
+from app.api.routes import router
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 
